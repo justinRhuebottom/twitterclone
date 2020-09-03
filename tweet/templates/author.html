@@ -1,0 +1,11 @@
+{% include "navbar.html" %}
+{% include "tweet_style.html" %}
+{% include "pure_style.html" %}
+
+<h1>
+    {{ author.display_name }}'s tweets 
+    <a class="pure-button" href="/follow/{{ author }}">{{ button_status }}</a>
+</h1>
+{% for tweet in tweets %}
+{% include "tweet_block.html" %}
+{% endfor %}
