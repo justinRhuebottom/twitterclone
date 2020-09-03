@@ -1,0 +1,46 @@
+{# https://www.w3schools.com/css/css_navbar.asp #}
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.topnav {
+  overflow: hidden;
+  background-color: #333;
+}
+
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: rgb(66, 135, 245);
+  color: black;
+}
+
+.user {
+  float: right;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 20px;
+}
+</style>
+
+<div class="topnav">
+  <a href="/">Home</a>
+  <a href="/addTweet/">Tweet</a>
+  <a href="#notifications">Notifications</a>
+  <a href="/author/{{ user.username }}">My Profile</a>
+  <a href="/logout/">Logout</a>
+  <div class="user">{{ user.display_name }} @{{ user }}</div>
+  <div class="user">{{ user.following.count }} Following</div>
+  <div class="user">{{ user.tweets }} Tweets</div>
+</div>
