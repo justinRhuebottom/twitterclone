@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from tweet.models import Tweet
 from tweet.forms import AddTweetForm
 from twitteruser.models import TwitterUser
+from notification.models import Notification
+import re
 
 @login_required()
 def add_tweet_view(request):
@@ -10,13 +12,24 @@ def add_tweet_view(request):
         form = AddTweetForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            Tweet.objects.create(
+            tweet = Tweet.objects.create(
                 body=data.get('body'),
                 author=request.user
             )
             user = TwitterUser.objects.get(id=request.user.id)
             user.tweets += 1
             user.save()
+
+            if '@' in data.get('body'):
+                users = re.findall(r'@(\w+)\b', data.get('body'))
+                for user in users:
+                    if TwitterUser.objects.filter(id=request.user.id).exists():
+                        Notification.objects.create(
+                            tweet_message=tweet,
+                            user=TwitterUser.objects.get(username=user),
+                            notification_view=False
+                        )
+
         return HttpResponseRedirect(reverse("homepage"))
 
     form = AddTweetForm()
