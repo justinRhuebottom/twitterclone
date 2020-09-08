@@ -4,36 +4,39 @@ from tweet.models import Tweet
 from tweet.forms import AddTweetForm
 from twitteruser.models import TwitterUser
 from notification.models import Notification
+from django.views import View
 import re
 
-@login_required()
-def add_tweet_view(request):
-    if request.method == "POST":
-        form = AddTweetForm(request.POST)
+class addTweet(View):
+    form_class = AddTweetForm
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, "add_tweet.html", {"form": form})
+        
+    def post(self, request):
+        form = self.form_class(request.POST)
         if form.is_valid():
             data = form.cleaned_data
             tweet = Tweet.objects.create(
                 body=data.get('body'),
                 author=request.user
             )
-            user = TwitterUser.objects.get(id=request.user.id)
-            user.tweets += 1
-            user.save()
+        user = TwitterUser.objects.get(id=request.user.id)
+        user.tweets += 1
+        user.save()
 
-            if '@' in data.get('body'):
-                users = re.findall(r'@(\w+)\b', data.get('body'))
-                for user in users:
-                    if TwitterUser.objects.filter(id=request.user.id).exists():
-                        Notification.objects.create(
-                            tweet_message=tweet,
-                            user=TwitterUser.objects.get(username=user),
-                            notification_view=False
-                        )
+        if '@' in data.get('body'):
+            users = re.findall(r'@(\w+)\b', data.get('body'))
+            for user in users:
+                if TwitterUser.objects.filter(id=request.user.id).exists():
+                    Notification.objects.create(
+                        tweet_message=tweet,
+                        user=TwitterUser.objects.get(username=user),
+                        notification_view=False
+                    )
 
         return HttpResponseRedirect(reverse("homepage"))
-
-    form = AddTweetForm()
-    return render(request, "add_tweet.html", {"form": form})
 
 def tweet_view(request, tweet_id):
     return render(request, 'tweet.html', {"tweet": Tweet.objects.filter(id=tweet_id).first()})
